@@ -1,0 +1,18 @@
+[
+  {
+    "cardNumber": "1",
+    "cardDate": "2025-07-15",
+    "responsible": "Токман В.М.",
+    "storage": "Безнощенко Н.К.",
+    "rows": [
+      {
+        "name": "Монітор",
+        "quantity": "1",
+        "invNumber": "2121",
+        "price": ""
+      }
+    ],
+    "_id": "87c8c7fe-193c-40ee-b02a-69df56cc1669",
+    "scanFile": "1752567383273_IMG_0001.pdf"
+  }
+]
