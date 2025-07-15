@@ -11,16 +11,21 @@ import {
   TableCell,
   WidthType,
   PageBreak,
-  Column,
+  AlignmentType,
 } from "docx";
 
 Modal.setAppElement("#root");
 
 const API_URL = "https://nodejs-hw-mongodb-y5ne.onrender.com";
 
-// Функція створення таблиці з оргтехнікою
-const createTable = (rows) => {
-  return new Table({
+const formatDate = (d) => {
+  if (!d) return "";
+  const [y, m, day] = d.split("-");
+  return `${day}.${m}.${y}`;
+};
+
+const createTable = (rows) =>
+  new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: [
       new TableRow({
@@ -45,15 +50,61 @@ const createTable = (rows) => {
       ),
     ],
   });
-};
 
-const formatDate = (d) => {
-  if (!d) return "";
-  const [y, m, day] = d.split("-");
-  return `${day}.${m}.${y}`;
-};
+// Таблиця підписів
+const createSignaturesTable = (storage, responsible) =>
+  new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: { style: "None", size: 0, color: "FFFFFF" },
+      bottom: { style: "None", size: 0, color: "FFFFFF" },
+      left: { style: "None", size: 0, color: "FFFFFF" },
+      right: { style: "None", size: 0, color: "FFFFFF" },
+      insideHorizontal: { style: "None", size: 0, color: "FFFFFF" },
+      insideVertical: { style: "None", size: 0, color: "FFFFFF" },
+    },
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            borders: {
+              top: { style: "None", size: 0, color: "FFFFFF" },
+              bottom: { style: "None", size: 0, color: "FFFFFF" },
+              left: { style: "None", size: 0, color: "FFFFFF" },
+              right: { style: "None", size: 0, color: "FFFFFF" },
+            },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.LEFT,
+                children: [
+                  new TextRun({ text: `${storage} __________`, font: "Times New Roman", size: 28 }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            borders: {
+              top: { style: "None", size: 0, color: "FFFFFF" },
+              bottom: { style: "None", size: 0, color: "FFFFFF" },
+              left: { style: "None", size: 0, color: "FFFFFF" },
+              right: { style: "None", size: 0, color: "FFFFFF" },
+            },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.RIGHT,
+                children: [
+                  new TextRun({ text: `${responsible} __________`, font: "Times New Roman", size: 28 }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
 
-// Функція для створення Word документа для однієї картки
+
+// Один документ
 const createDocumentForCard = (card) => {
   return new Document({
     styles: {
@@ -65,7 +116,7 @@ const createDocumentForCard = (card) => {
           next: "Normal",
           run: {
             font: "Times New Roman",
-            size: 28, // 14 pt (docx size = points * 2)
+            size: 28,
           },
         },
       ],
@@ -100,12 +151,15 @@ const createDocumentForCard = (card) => {
           new Paragraph({ text: `На зберіганні у: ${card.storage}`, style: "normalText" }),
           new Paragraph({ text: "Оргтехніка:", style: "normalText", spacing: { before: 300, after: 100 } }),
           createTable(card.rows || []),
+          new Paragraph({ text: "", spacing: { before: 200, after: 200 } }),
+          createSignaturesTable(card.storage, card.responsible),
         ],
       },
     ],
   });
 };
 
+// Експорт всіх карток
 const exportAllCardsToWord = async (allKartky) => {
   const doc = new Document({
     styles: {
@@ -115,10 +169,7 @@ const exportAllCardsToWord = async (allKartky) => {
           name: "Normal Text",
           basedOn: "Normal",
           next: "Normal",
-          run: {
-            font: "Times New Roman",
-            size: 28,
-          },
+          run: { font: "Times New Roman", size: 28 },
         },
       ],
     },
@@ -155,6 +206,8 @@ const exportAllCardsToWord = async (allKartky) => {
         new Paragraph({ text: `На зберіганні у: ${card.storage}`, style: "normalText" }),
         new Paragraph({ text: "Оргтехніка:", style: "normalText", spacing: { before: 300, after: 100 } }),
         createTable(card.rows || []),
+        new Paragraph({ text: "", spacing: { before: 200, after: 200 } }),
+        createSignaturesTable(card.storage, card.responsible),
         idx < allKartky.length - 1 ? new Paragraph({ children: [new PageBreak()] }) : null,
       ].filter(Boolean),
     });
@@ -299,7 +352,11 @@ const App = () => {
             value={responsible}
             onChange={(e) => setResponsible(e.target.value)}
           />
-          <input placeholder="На зберіганні у" value={storage} onChange={(e) => setStorage(e.target.value)} />
+          <input
+            placeholder="На зберіганні у"
+            value={storage}
+            onChange={(e) => setStorage(e.target.value)}
+          />
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -332,7 +389,7 @@ const App = () => {
       </div>
 
       <br />
-      <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center",  gap: 10 }}>
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 10 }}>
         <button onClick={addRow}>Додати рядок</button>
         <button onClick={saveToServer} style={{ marginLeft: 10 }}>
           Зберегти картку
