@@ -73,6 +73,22 @@ const App = () => {
     setScanFile(null);
   };
 
+  const deleteCard = async (id) => {
+    if (!window.confirm("Ви впевнені, що хочете видалити цю картку?")) return;
+
+    const res = await fetch(`${API_URL}/api/kartky/${id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      alert("Картку видалено.");
+      fetchAllCards();
+      closeModal();
+    } else {
+      alert("Помилка при видаленні.");
+    }
+  };
+
   const uploadScan = async () => {
     if (!scanFile) {
       alert("Оберіть файл для завантаження.");
@@ -138,11 +154,11 @@ const App = () => {
           <li key={i}>
             №{k.cardNumber} від {formatDate(k.cardDate)} — {k.responsible}{" "}
             <button onClick={() => openModal(k)}>Переглянути</button>
+            <button onClick={() => deleteCard(k._id)} style={{ marginLeft: 5 }}>🗑️</button>
           </li>
         ))}
       </ul>
 
-      {/* Модальне вікно */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}

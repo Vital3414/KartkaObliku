@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
 const cors = require("cors");
-const { v4: uuidv4 } = require("uuid");  // <-- додай це
+const { v4: uuidv4 } = require("uuid");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -31,14 +31,32 @@ const upload = multer({ storage });
 // Створити картку з унікальним _id
 app.post("/api/kartky", (req, res) => {
   const newCard = req.body;
-  newCard._id = uuidv4(); // <-- додай унікальний ідентифікатор
+  newCard._id = uuidv4();
 
   const cards = fs.existsSync(dataFilePath)
     ? JSON.parse(fs.readFileSync(dataFilePath, "utf-8"))
     : [];
   cards.push(newCard);
   fs.writeFileSync(dataFilePath, JSON.stringify(cards, null, 2));
-  res.status(201).json(newCard); // <-- повертаємо створену картку з _id
+  res.status(201).json(newCard);
+});
+
+// Видалити картку за _id або індекс
+app.delete("/api/kartky/:id", (req, res) => {
+  const cardId = req.params.id;
+  if (!fs.existsSync(dataFilePath)) {
+    return res.status(404).json({ error: "Файл з картками не знайдено" });
+  }
+
+  const cards = JSON.parse(fs.readFileSync(dataFilePath, "utf-8"));
+  const updatedCards = cards.filter((card, index) => index.toString() !== cardId && card._id !== cardId);
+
+  if (cards.length === updatedCards.length) {
+    return res.status(404).json({ error: "Картку не знайдено" });
+  }
+
+  fs.writeFileSync(dataFilePath, JSON.stringify(updatedCards, null, 2));
+  res.json({ message: "Картку видалено" });
 });
 
 // Отримати всі картки
@@ -66,8 +84,5 @@ app.post("/api/kartky/:id/scan", upload.single("scan"), (req, res) => {
   fs.writeFileSync(dataFilePath, JSON.stringify(cards, null, 2));
   res.json(cards[cardIndex]);
 });
-
-// Віддаємо сканкопії статично
-app.use("/api/kartky/scan", express.static(path.join(__dirname, "uploads")));
 
 app.listen(PORT, () => console.log(`✅ Server started at http://localhost:${PORT}`));
