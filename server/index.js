@@ -6,7 +6,7 @@ const cors = require("cors");
 const { v4: uuidv4 } = require("uuid");  // <-- додай це
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
