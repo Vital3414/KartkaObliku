@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/KartkaObliku/static/js/main.448b3fb0.js",
+    "main.js": "/KartkaObliku/static/js/main.bcce07d8.js",
     "index.html": "/KartkaObliku/index.html",
-    "main.448b3fb0.js.map": "/KartkaObliku/static/js/main.448b3fb0.js.map"
+    "main.bcce07d8.js.map": "/KartkaObliku/static/js/main.bcce07d8.js.map"
   },
   "entrypoints": [
-    "static/js/main.448b3fb0.js"
+    "static/js/main.bcce07d8.js"
   ]
 }
