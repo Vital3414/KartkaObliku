@@ -11,6 +11,7 @@ import {
   TableCell,
   WidthType,
   PageBreak,
+  Column,
 } from "docx";
 
 Modal.setAppElement("#root");
@@ -283,71 +284,78 @@ const App = () => {
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial" }}>
-      <h2>Нова картка</h2>
-      <input
-        placeholder="Номер"
-        value={cardNumber}
-        onChange={(e) => setCardNumber(e.target.value)}
-      />
-      <input type="date" value={cardDate} onChange={(e) => setCardDate(e.target.value)} />
-      <input
-        placeholder="Відповідальна особа"
-        value={responsible}
-        onChange={(e) => setResponsible(e.target.value)}
-      />
-      <input placeholder="На зберіганні у" value={storage} onChange={(e) => setStorage(e.target.value)} />
-
-      <h3>Оргтехніка</h3>
-      {rows.map((row, i) => (
-        <div key={i} style={{ display: "flex", gap: 5, marginBottom: 5 }}>
+    <div style={{ padding: 20, fontFamily: "Arial", gap: "10px" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <h2>Нова картка</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 250 }}>
           <input
-            placeholder="Назва"
-            value={row.name}
-            onChange={(e) => updateRow(i, "name", e.target.value)}
+            placeholder="Номер"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
           />
+          <input type="date" value={cardDate} onChange={(e) => setCardDate(e.target.value)} />
           <input
-            type="number"
-            value={row.quantity}
-            onChange={(e) => updateRow(i, "quantity", e.target.value)}
+            placeholder="Відповідальна особа"
+            value={responsible}
+            onChange={(e) => setResponsible(e.target.value)}
           />
-          <input
-            placeholder="Інв. №"
-            value={row.invNumber}
-            onChange={(e) => updateRow(i, "invNumber", e.target.value)}
-          />
-          <input
-            placeholder="Ціна"
-            value={row.price}
-            onChange={(e) => updateRow(i, "price", e.target.value)}
-          />
-          <button onClick={() => removeRow(i)}>❌</button>
+          <input placeholder="На зберіганні у" value={storage} onChange={(e) => setStorage(e.target.value)} />
         </div>
-      ))}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <h3>Оргтехніка</h3>
+        {rows.map((row, i) => (
+          <div key={i} style={{ display: "flex", gap: 5, marginBottom: 5 }}>
+            <input
+              placeholder="Назва"
+              value={row.name}
+              onChange={(e) => updateRow(i, "name", e.target.value)}
+            />
+            <input
+              type="number"
+              value={row.quantity}
+              onChange={(e) => updateRow(i, "quantity", e.target.value)}
+            />
+            <input
+              placeholder="Інв. №"
+              value={row.invNumber}
+              onChange={(e) => updateRow(i, "invNumber", e.target.value)}
+            />
+            <input
+              placeholder="Ціна"
+              value={row.price}
+              onChange={(e) => updateRow(i, "price", e.target.value)}
+            />
+            <button onClick={() => removeRow(i)}>❌</button>
+          </div>
+        ))}
+      </div>
 
       <br />
-      <button onClick={addRow}>Додати рядок</button>
-      <button onClick={saveToServer} style={{ marginLeft: 10 }}>
-        Зберегти картку
-      </button>
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center",  gap: 10 }}>
+        <button onClick={addRow}>Додати рядок</button>
+        <button onClick={saveToServer} style={{ marginLeft: 10 }}>
+          Зберегти картку
+        </button>
+      </div>
 
       <hr />
 
       {/* Кнопка експорту всіх карток */}
       {allKartky.length >= 2 && (
-      <button
-        onClick={() => exportAllCardsToWord(allKartky)}
-        style={{
-          marginBottom: 20,
-          backgroundColor: "#4CAF50",
-          color: "white",
-          padding: "10px",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        📄 Завантажити всі картки у Word
-      </button>
+        <button
+          onClick={() => exportAllCardsToWord(allKartky)}
+          style={{
+            marginBottom: 20,
+            backgroundColor: "#4CAF50",
+            color: "white",
+            padding: "10px",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          📄 Завантажити всі картки у Word
+        </button>
       )}
 
       <h2>Усі збережені картки</h2>
