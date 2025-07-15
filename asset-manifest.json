@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.js": "/kartkaObliku/static/js/main.448b3fb0.js",
-    "index.html": "/kartkaObliku/index.html",
-    "main.448b3fb0.js.map": "/kartkaObliku/static/js/main.448b3fb0.js.map"
+    "main.js": "/KartkaObliku/static/js/main.448b3fb0.js",
+    "index.html": "/KartkaObliku/index.html",
+    "main.448b3fb0.js.map": "/KartkaObliku/static/js/main.448b3fb0.js.map"
   },
   "entrypoints": [
     "static/js/main.448b3fb0.js"
