@@ -3,6 +3,8 @@ import Modal from "react-modal";
 
 Modal.setAppElement("#root");
 
+const API_URL = "https://nodejs-hw-mongodb-y5ne.onrender.com";
+
 const App = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [cardDate, setCardDate] = useState("");
@@ -28,34 +30,33 @@ const App = () => {
   };
 
   const saveToServer = async () => {
-  if (!cardNumber || !cardDate) {
-    alert("Заповніть номер картки і дату!");
-    return;
-  }
-  const newCard = { cardNumber, cardDate, responsible, storage, rows };
-  const res = await fetch("http://localhost:4000/api/kartky", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(newCard),
-  });
+    if (!cardNumber || !cardDate) {
+      alert("Заповніть номер картки і дату!");
+      return;
+    }
+    const newCard = { cardNumber, cardDate, responsible, storage, rows };
+    const res = await fetch(`${API_URL}/api/kartky`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCard),
+    });
 
-  if (res.ok) {
-    const createdCard = await res.json();
-    // Оновити список карток і скинути поля
-    setAllKartky(prev => [...prev, createdCard]);
-    setCardNumber("");
-    setCardDate("");
-    setResponsible("Токман В.М.");
-    setStorage("");
-    setRows([{ name: "", quantity: 0, invNumber: "", price: "" }]);
-    alert("Картку збережено!");
-  } else {
-    alert("Помилка збереження картки.");
-  }
-};
+    if (res.ok) {
+      const createdCard = await res.json();
+      setAllKartky(prev => [...prev, createdCard]);
+      setCardNumber("");
+      setCardDate("");
+      setResponsible("Токман В.М.");
+      setStorage("");
+      setRows([{ name: "", quantity: 0, invNumber: "", price: "" }]);
+      alert("Картку збережено!");
+    } else {
+      alert("Помилка збереження картки.");
+    }
+  };
 
   const fetchAllCards = async () => {
-    const res = await fetch("http://localhost:4000/api/kartky");
+    const res = await fetch(`${API_URL}/api/kartky`);
     const data = await res.json();
     setAllKartky(data);
   };
@@ -73,36 +74,33 @@ const App = () => {
   };
 
   const uploadScan = async () => {
-  console.log("selectedCard:", selectedCard);
-  console.log("scanFile:", scanFile);
+    if (!scanFile) {
+      alert("Оберіть файл для завантаження.");
+      return;
+    }
+    if (!selectedCard || !selectedCard._id) {
+      alert("Не вибрано картку.");
+      return;
+    }
 
-  if (!scanFile) {
-    alert("Оберіть файл для завантаження.");
-    return;
-  }
-  if (!selectedCard || !selectedCard._id) {
-    alert("Не вибрано картку.");
-    return;
-  }
+    const formData = new FormData();
+    formData.append("scan", scanFile);
 
-  const formData = new FormData();
-  formData.append("scan", scanFile);
+    const res = await fetch(`${API_URL}/api/kartky/${selectedCard._id}/scan`, {
+      method: "POST",
+      body: formData,
+    });
 
-  const res = await fetch(`http://localhost:4000/api/kartky/${selectedCard._id}/scan`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (res.ok) {
-    const updated = await res.json();
-    alert("Сканкопію завантажено!");
-    fetchAllCards();
-    setSelectedCard(updated);
-    setScanFile(null);
-  } else {
-    alert("Помилка завантаження.");
-  }
-};
+    if (res.ok) {
+      const updated = await res.json();
+      alert("Сканкопію завантажено!");
+      fetchAllCards();
+      setSelectedCard(updated);
+      setScanFile(null);
+    } else {
+      alert("Помилка завантаження.");
+    }
+  };
 
   const formatDate = (d) => {
     if (!d) return "";
@@ -189,13 +187,13 @@ const App = () => {
               {selectedCard.scanFile ? (
                 <>
                   <iframe
-                    src={`http://localhost:4000/api/kartky/scan/${selectedCard.scanFile}`}
+                    src={`${API_URL}/api/kartky/scan/${selectedCard.scanFile}`}
                     width="100%"
                     height="400px"
                     title="PDF"
                   />
                   <br />
-                  <button onClick={() => window.open(`http://localhost:4000/api/kartky/scan/${selectedCard.scanFile}`, "_blank")}>
+                  <button onClick={() => window.open(`${API_URL}/api/kartky/scan/${selectedCard.scanFile}`, "_blank")}>
                     🔽 Відкрити / Друк
                   </button>
                 </>
