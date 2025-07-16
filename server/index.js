@@ -59,6 +59,25 @@ app.delete("/api/kartky/:id", (req, res) => {
   res.json({ message: "Картку видалено" });
 });
 
+app.put("/api/kartky/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedCard = req.body;
+
+  try {
+    const kartky = JSON.parse(fs.readFileSync("kartky.json"));
+    const index = kartky.findIndex((k) => k._id === id);
+    if (index === -1) return res.status(404).send("Картку не знайдено");
+
+    kartky[index] = { ...kartky[index], ...updatedCard };
+    fs.writeFileSync("kartky.json", JSON.stringify(kartky, null, 2));
+
+    res.json(kartky[index]);
+  } catch (err) {
+    console.error("Помилка оновлення картки:", err);
+    res.status(500).send("Помилка сервера");
+  }
+});
+
 // Отримати всі картки
 app.get("/api/kartky", (req, res) => {
   const cards = fs.existsSync(dataFilePath)

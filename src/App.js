@@ -234,9 +234,15 @@ const App = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [scanFile, setScanFile] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   useEffect(() => {
     fetchAllCards();
+  }, []);
+
+  useEffect(() => {
+    document.body.style.fontFamily = "'Times New Roman', Times, serif";
   }, []);
 
   const addRow = () => setRows([...rows, { name: "", quantity: 0, invNumber: "", price: "" }]);
@@ -337,7 +343,10 @@ const App = () => {
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial", gap: "10px" }}>
+    <div style={{
+      padding: 20,
+      gap: "10px"
+    }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <h2>Нова картка</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 250 }}>
@@ -416,28 +425,55 @@ const App = () => {
       )}
 
       <h2>Усі збережені картки</h2>
-      <ul>
-        {allKartky.map((k) => (
-          <li key={k._id}>
-            №{k.cardNumber} від {formatDate(k.cardDate)} — {k.responsible}{" "}
-            <button onClick={() => openModal(k)}>Переглянути</button>
-            <button
-              onClick={() => exportSingleCardToWord(k)}
-              style={{ marginLeft: 5 }}
-              title="Завантажити цю картку у Word"
-            >
-              📄
-            </button>
-            <button
-              onClick={() => deleteCard(k._id)}
-              style={{ marginLeft: 5 }}
-              title="Видалити картку"
-            >
-              🗑️
-            </button>
-          </li>
-        ))}
-      </ul>
+      <input
+        type="text"
+        placeholder="Пошук за прізвищем"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: 10, padding: 5, width: "300px" }}
+      />
+      <div
+        style={{
+          maxHeight: "400px", // або інша висота під твій дизайн
+          overflowY: "auto",
+          border: "1px solid #ccc",
+          padding: "10px",
+          borderRadius: "5px",
+          width: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
+          {allKartky
+            .filter((k) => {
+              const search = searchTerm.toLowerCase();
+              return (
+                k.cardNumber.toString().includes(search) ||
+                k.storage.toLowerCase().includes(search)
+              );
+            })
+            .map((k) => (
+              <li key={k._id} style={{ marginBottom: "10px" }}>
+                №{k.cardNumber} від {formatDate(k.cardDate)} — {k.storage}{" "}
+                <button onClick={() => openModal(k)}>Переглянути</button>
+                <button
+                  onClick={() => exportSingleCardToWord(k)}
+                  style={{ marginLeft: 5 }}
+                  title="Завантажити цю картку у Word"
+                >
+                  📄
+                </button>
+                <button
+                  onClick={() => deleteCard(k._id)}
+                  style={{ marginLeft: 5 }}
+                  title="Видалити картку"
+                >
+                  🗑️
+                </button>
+              </li>
+            ))}
+        </ul>
+      </div>
 
       {/* Модальне вікно */}
       <Modal
@@ -527,7 +563,96 @@ const App = () => {
                 Завантажити сканкопію
               </button>
             </div>
+            <br />
+            <h4>Редагування картки</h4>
+            <input
+              placeholder="Номер картки"
+              value={selectedCard.cardNumber}
+              onChange={(e) =>
+                setSelectedCard({ ...selectedCard, cardNumber: e.target.value })
+              }
+            />
+            <input
+              type="date"
+              value={selectedCard.cardDate}
+              onChange={(e) =>
+                setSelectedCard({ ...selectedCard, cardDate: e.target.value })
+              }
+            />
+            <input
+              placeholder="Відповідальна особа"
+              value={selectedCard.responsible}
+              onChange={(e) =>
+                setSelectedCard({ ...selectedCard, responsible: e.target.value })
+              }
+            />
+            <input
+              placeholder="На зберіганні у"
+              value={selectedCard.storage}
+              onChange={(e) =>
+                setSelectedCard({ ...selectedCard, storage: e.target.value })
+              }
+            />
 
+            {/* Таблиця для редагування оргтехніки */}
+            {selectedCard.rows?.map((r, i) => (
+              <div key={i} style={{ display: "flex", gap: "5px", marginBottom: "5px" }}>
+                <input
+                  value={r.name}
+                  onChange={(e) => {
+                    const newRows = [...selectedCard.rows];
+                    newRows[i].name = e.target.value;
+                    setSelectedCard({ ...selectedCard, rows: newRows });
+                  }}
+                />
+                <input
+                  type="number"
+                  value={r.quantity}
+                  onChange={(e) => {
+                    const newRows = [...selectedCard.rows];
+                    newRows[i].quantity = parseInt(e.target.value);
+                    setSelectedCard({ ...selectedCard, rows: newRows });
+                  }}
+                />
+                <input
+                  value={r.invNumber}
+                  onChange={(e) => {
+                    const newRows = [...selectedCard.rows];
+                    newRows[i].invNumber = e.target.value;
+                    setSelectedCard({ ...selectedCard, rows: newRows });
+                  }}
+                />
+                <input
+                  value={r.price}
+                  onChange={(e) => {
+                    const newRows = [...selectedCard.rows];
+                    newRows[i].price = e.target.value;
+                    setSelectedCard({ ...selectedCard, rows: newRows });
+                  }}
+                />
+              </div>
+            ))}
+
+            {/* Кнопка збереження */}
+            <button
+              onClick={async () => {
+                const res = await fetch(`${API_URL}/api/kartky/${selectedCard._id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(selectedCard),
+                });
+                if (res.ok) {
+                  alert("Зміни збережено!");
+                  fetchAllCards();
+                  closeModal();
+                } else {
+                  alert("Помилка при збереженні змін.");
+                }
+              }}
+              style={{ marginTop: 10, backgroundColor: "#2196F3", color: "white", padding: "5px" }}
+            >
+              💾 Зберегти зміни
+            </button>
             <br />
             <button onClick={closeModal}>Закрити</button>
           </div>
