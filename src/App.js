@@ -565,34 +565,36 @@ const App = () => {
             </div>
             <br />
             <h4>Редагування картки</h4>
-            <input
-              placeholder="Номер картки"
-              value={selectedCard.cardNumber}
-              onChange={(e) =>
-                setSelectedCard({ ...selectedCard, cardNumber: e.target.value })
-              }
-            />
-            <input
-              type="date"
-              value={selectedCard.cardDate}
-              onChange={(e) =>
-                setSelectedCard({ ...selectedCard, cardDate: e.target.value })
-              }
-            />
-            <input
-              placeholder="Відповідальна особа"
-              value={selectedCard.responsible}
-              onChange={(e) =>
-                setSelectedCard({ ...selectedCard, responsible: e.target.value })
-              }
-            />
-            <input
-              placeholder="На зберіганні у"
-              value={selectedCard.storage}
-              onChange={(e) =>
-                setSelectedCard({ ...selectedCard, storage: e.target.value })
-              }
-            />
+            <div style={{ marginBottom: 10, display: "flex", gap: 5 }}>
+              <input
+                placeholder="Номер картки"
+                value={selectedCard.cardNumber}
+                onChange={(e) =>
+                  setSelectedCard({ ...selectedCard, cardNumber: e.target.value })
+                }
+              />
+              <input
+                type="date"
+                value={selectedCard.cardDate}
+                onChange={(e) =>
+                  setSelectedCard({ ...selectedCard, cardDate: e.target.value })
+                }
+              />
+              <input
+                placeholder="Відповідальна особа"
+                value={selectedCard.responsible}
+                onChange={(e) =>
+                  setSelectedCard({ ...selectedCard, responsible: e.target.value })
+                }
+              />
+              <input
+                placeholder="На зберіганні у"
+                value={selectedCard.storage}
+                onChange={(e) =>
+                  setSelectedCard({ ...selectedCard, storage: e.target.value })
+                }
+              />
+            </div>
 
             {/* Таблиця для редагування оргтехніки */}
             {selectedCard.rows?.map((r, i) => (
@@ -630,8 +632,27 @@ const App = () => {
                     setSelectedCard({ ...selectedCard, rows: newRows });
                   }}
                 />
+                <button
+                  onClick={() => {
+                    const newRows = selectedCard.rows.filter((_, idx) => idx !== i);
+                    setSelectedCard({ ...selectedCard, rows: newRows });
+                  }}
+                >
+                  ❌
+                </button>
               </div>
             ))}
+
+            {/* Додати рядок у редагуванні */}
+            <button
+              onClick={() => {
+                const newRows = [...(selectedCard.rows || []), { name: "", quantity: 0, invNumber: "", price: "" }];
+                setSelectedCard({ ...selectedCard, rows: newRows });
+              }}
+              style={{ marginTop: "10px", marginBottom: "10px", marginRight: 10 }}
+            >
+              ➕ Додати рядок
+            </button>
 
             {/* Кнопка збереження */}
             <button
